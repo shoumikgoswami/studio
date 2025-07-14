@@ -8,7 +8,7 @@ import {
   CardHeader,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { MoreVertical, Settings } from 'lucide-react';
+import { MoreVertical } from 'lucide-react';
 import Link from 'next/link';
 import {
   DropdownMenu,
@@ -17,19 +17,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Badge } from '@/components/ui/badge';
 import { ChatMessages } from './components/chat-messages';
 import { ChatInput } from './components/chat-input';
-import { SidebarTrigger } from '@/components/ui/sidebar';
-import type { CoachPersona } from '@/lib/types';
+import type { CoachPersona, User } from '@/lib/types';
 import { Bot } from 'lucide-react';
 
 function getActivePersona(
-  user: any,
+  user: User,
   personas: CoachPersona[]
 ): CoachPersona | undefined {
   // Find a preset (system or custom) that matches the user's active settings
-  const matchedPreset = [...personas, ...(user.coachPresets || [])].find(
+  const allKnownPersonas = [...personas, ...(user.coachPresets || [])];
+  const matchedPreset = allKnownPersonas.find(
     (p) =>
       p.settings &&
       user.coachSettings &&
@@ -41,14 +40,12 @@ function getActivePersona(
   }
 
   // If no preset matches, it's a custom unsaved configuration
-  // You might want to represent this differently in the UI
-  // For now, we return a generic object or the first system preset as a fallback.
   return {
       id: 'custom-unsaved',
       name: 'Custom Coach',
       description: 'Your custom settings are active.',
       isSystemPreset: false,
-      settings: user.coachSettings,
+      settings: user.coachSettings || personas[0].settings, // Fallback to first system preset
       strength: 'Tailored to you',
       bestFor: 'Your specific needs'
   };
@@ -95,7 +92,6 @@ export default async function ConversationPage({
                </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>}
-           <span className="text-sm text-muted-foreground">Balanced, reflective, supportive</span>
         </div>
         <div className="flex items-center gap-2">
           <DropdownMenu>
