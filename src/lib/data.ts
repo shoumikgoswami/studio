@@ -1,3 +1,4 @@
+
 import type {
   CoachingConversation,
   Goal,
@@ -5,6 +6,7 @@ import type {
   Message,
   User,
 } from './types';
+import { suggestCoachingTopics as suggestCoachingTopicsFlow } from '@/ai/flows/suggest-coaching-topics';
 
 const USER_ID = 'user-123';
 
@@ -244,13 +246,6 @@ export async function getUser(): Promise<User> {
 }
 
 export async function getSuggestedTopics(): Promise<string[]> {
-  await new Promise((resolve) => setTimeout(resolve, 400));
-  return [
-    'Improve my Grit',
-    'Reduce my work stress',
-    'Support for: Improve Public Speaking',
-    'Navigating Team Conflicts',
-    'Leading Through Uncertainty',
-    'Strategic Decision Making',
-  ];
+  const topics = await suggestCoachingTopicsFlow();
+  return topics.map(topic => topic.title);
 }
