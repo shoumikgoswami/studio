@@ -1,3 +1,4 @@
+
 import { getCoachPersonas, getConversation, getUser } from '@/lib/data';
 import { notFound } from 'next/navigation';
 import {
@@ -110,7 +111,7 @@ export default async function ConversationPage({
         </div>
       </CardHeader>
       <CardContent className="flex-1 overflow-hidden p-0">
-        <ChatMessages messages={conversation.messages} />
+        <ChatMessages messages={conversation.messages} conversationId={conversation.id} />
       </CardContent>
       <CardFooter className="border-t p-4">
         <ChatInput conversationId={conversation.id} />
