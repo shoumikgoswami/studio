@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { CoachingConversation } from "@/lib/types";
@@ -17,6 +18,7 @@ import {
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { Badge } from "@/components/ui/badge";
+import { useState, useEffect } from "react";
 
 type ConversationItemProps = {
   conversation: CoachingConversation;
@@ -25,6 +27,14 @@ type ConversationItemProps = {
 export function ConversationItem({ conversation }: ConversationItemProps) {
   const pathname = usePathname();
   const isActive = pathname === `/coach/c/${conversation.id}`;
+  const [timeAgo, setTimeAgo] = useState('');
+
+  useEffect(() => {
+    setTimeAgo(formatDistanceToNow(new Date(conversation.updatedAt), {
+        addSuffix: true,
+    }));
+  }, [conversation.updatedAt]);
+
 
   return (
     <SidebarMenuItem>
@@ -34,9 +44,7 @@ export function ConversationItem({ conversation }: ConversationItemProps) {
             <span className="truncate font-medium">{conversation.title}</span>
             <div className="flex w-full items-center justify-between text-xs text-muted-foreground">
               <span className="truncate">
-                {formatDistanceToNow(new Date(conversation.updatedAt), {
-                  addSuffix: true,
-                })}
+                {timeAgo}
               </span>
               {conversation.focusArea && (
                 <Badge variant="outline" className="hidden group-hover/menu-item:block">
