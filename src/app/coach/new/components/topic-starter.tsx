@@ -13,6 +13,7 @@ import { createNewConversation } from '@/lib/actions';
 import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 export function TopicStarter() {
   const { toast } = useToast();
@@ -59,7 +60,9 @@ export function TopicStarter() {
   if (loading && !isRefreshing) {
     return (
       <div className="space-y-4">
-        <Skeleton className="h-8 w-32 ml-auto" />
+        <div className="flex justify-end">
+          <Skeleton className="h-10 w-[150px]" />
+        </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {[...Array(6)].map((_, i) => (
             <Card key={i} className="p-4">
