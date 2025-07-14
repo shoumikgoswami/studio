@@ -23,7 +23,7 @@ const SIDEBAR_COOKIE_NAME = "sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
 const SIDEBAR_WIDTH = "18rem"
 const SIDEBAR_WIDTH_MOBILE = "18rem"
-const SIDEBAR_WIDTH_ICON = "3rem"
+const SIDEBAR_WIDTH_ICON = "4.5rem"
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 
 type SidebarContext = {
@@ -216,7 +216,7 @@ const Sidebar = React.forwardRef<
       <aside
         ref={ref}
         className={cn(
-            "group peer hidden md:flex flex-col h-svh bg-sidebar text-sidebar-foreground transition-all duration-300 ease-in-out",
+            "group peer hidden md:flex flex-col h-svh bg-sidebar text-sidebar-foreground transition-all duration-300 ease-in-out shrink-0",
             state === 'expanded' ? "w-[--sidebar-width]" : "w-[--sidebar-width-icon]",
             className
         )}
@@ -337,7 +337,7 @@ const SidebarHeader = React.forwardRef<
     <div
       ref={ref}
       data-sidebar="header"
-      className={cn("flex h-16 shrink-0 items-center overflow-hidden px-4", className)}
+      className={cn("flex h-20 shrink-0 items-center overflow-hidden px-4", className)}
       {...props}
     />
   )

@@ -1,6 +1,61 @@
 {
   "conversations": [
     {
+      "id": "conv-1752483526854",
+      "userId": "user-123",
+      "title": "Open Coaching Session",
+      "createdAt": "2025-07-14T08:58:46.854Z",
+      "updatedAt": "2025-07-14T08:58:46.854Z",
+      "messages": [],
+      "isActive": true
+    },
+    {
+      "id": "conv-1752483141163",
+      "userId": "user-123",
+      "title": "Open Coaching Session",
+      "createdAt": "2025-07-14T08:52:21.163Z",
+      "updatedAt": "2025-07-14T08:52:26.545Z",
+      "messages": [
+        {
+          "id": "msg-conv-1752483141163-1752483146545",
+          "role": "user",
+          "content": "hi",
+          "createdAt": "2025-07-14T08:52:26.545Z"
+        },
+        {
+          "id": "msg-conv-1752483141163-1752483146546",
+          "role": "assistant",
+          "content": "Thinking about your message: \"hi\"...",
+          "createdAt": "2025-07-14T08:52:26.545Z",
+          "avatarUrl": "https://placehold.co/40x40.png"
+        }
+      ],
+      "isActive": true
+    },
+    {
+      "id": "conv-1752483107739",
+      "userId": "user-123",
+      "title": "Open Coaching Session",
+      "createdAt": "2025-07-14T08:51:47.739Z",
+      "updatedAt": "2025-07-14T08:52:07.199Z",
+      "messages": [
+        {
+          "id": "msg-conv-1752483107739-1752483127199",
+          "role": "user",
+          "content": "what is my Aqme score",
+          "createdAt": "2025-07-14T08:52:07.199Z"
+        },
+        {
+          "id": "msg-conv-1752483107739-1752483127200",
+          "role": "assistant",
+          "content": "Thinking about your message: \"what is my Aqme score\"...",
+          "createdAt": "2025-07-14T08:52:07.199Z",
+          "avatarUrl": "https://placehold.co/40x40.png"
+        }
+      ],
+      "isActive": true
+    },
+    {
       "id": "conv-1752481967968",
       "userId": "user-123",
       "title": "Open Coaching Session",

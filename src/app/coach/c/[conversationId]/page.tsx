@@ -22,19 +22,36 @@ import { ChatMessages } from './components/chat-messages';
 import { ChatInput } from './components/chat-input';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import type { CoachPersona } from '@/lib/types';
+import { Bot } from 'lucide-react';
 
 function getActivePersona(
   user: any,
   personas: CoachPersona[]
 ): CoachPersona | undefined {
-  if (!user.coachSettings) return personas.find((p) => p.isSystemPreset);
-  const custom = (user.coachPresets || []).find(
-    (p: any) => JSON.stringify(p.settings) === JSON.stringify(user.coachSettings)
+  // Find a preset (system or custom) that matches the user's active settings
+  const matchedPreset = [...personas, ...(user.coachPresets || [])].find(
+    (p) =>
+      p.settings &&
+      user.coachSettings &&
+      JSON.stringify(p.settings) === JSON.stringify(user.coachSettings)
   );
-  if (custom) return custom;
-  return personas.find(
-    (p) => p.settings && user.coachSettings && JSON.stringify(p.settings) === JSON.stringify(user.coachSettings)
-  ) || personas[0];
+
+  if (matchedPreset) {
+    return matchedPreset;
+  }
+
+  // If no preset matches, it's a custom unsaved configuration
+  // You might want to represent this differently in the UI
+  // For now, we return a generic object or the first system preset as a fallback.
+  return {
+      id: 'custom-unsaved',
+      name: 'Custom Coach',
+      description: 'Your custom settings are active.',
+      isSystemPreset: false,
+      settings: user.coachSettings,
+      strength: 'Tailored to you',
+      bestFor: 'Your specific needs'
+  };
 }
 
 export default async function ConversationPage({
@@ -51,42 +68,36 @@ export default async function ConversationPage({
   }
 
   const activePersona = getActivePersona(user, personas);
+  const allPersonas = [...personas.filter(p => p.isSystemPreset), ...(user.coachPresets || [])];
+
 
   return (
-    <Card className="flex h-full flex-col border-0 shadow-none">
+    <Card className="flex h-full flex-col border-0 shadow-none rounded-none">
       <CardHeader className="flex flex-row items-center justify-between border-b bg-card p-4">
-        <div className="flex items-center gap-2">
-          <SidebarTrigger className="md:hidden" />
+        <div className="flex items-center gap-4">
           <h3 className="truncate text-lg font-semibold">
             {conversation.title}
           </h3>
-        </div>
-        <div className="flex items-center gap-2">
           {activePersona && <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="max-w-[200px] truncate">
-                <span className="truncate">{activePersona.name}</span>
-              </Button>
+                <Button variant="outline" size="sm" className="max-w-[200px] truncate rounded-full">
+                    <Bot className="mr-2 h-4 w-4" />
+                    <span className="truncate">{activePersona.name}</span>
+                </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {personas.map((p) => (
+            <DropdownMenuContent align="start">
+              {allPersonas.map((p) => (
                 <DropdownMenuItem key={p.id}>{p.name}</DropdownMenuItem>
               ))}
-              {(user.coachPresets || []).length > 0 && (
-                <>
-                  <DropdownMenuSeparator />
-                  {user.coachPresets.map((p: CoachPersona) => (
-                    <DropdownMenuItem key={p.id}>{p.name}</DropdownMenuItem>
-                  ))}
-                </>
-              )}
                <DropdownMenuSeparator />
                <DropdownMenuItem asChild>
                  <Link href="/coach/settings">Customize Coach</Link>
                </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>}
-
+           <span className="text-sm text-muted-foreground">Balanced, reflective, supportive</span>
+        </div>
+        <div className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon">
@@ -106,7 +117,7 @@ export default async function ConversationPage({
       <CardContent className="flex-1 overflow-hidden p-0">
         <ChatMessages messages={conversation.messages} conversationId={conversation.id} />
       </CardContent>
-      <CardFooter className="border-t p-4">
+      <CardFooter className="border-t p-4 bg-card">
         <ChatInput conversationId={conversation.id} />
       </CardFooter>
     </Card>

@@ -10,7 +10,7 @@ import { useFormStatus } from "react-dom";
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" size="icon" disabled={pending}>
+    <Button type="submit" size="icon" className="shrink-0" disabled={pending}>
       {pending ? (
         <Loader2 className="animate-spin" />
       ) : (
@@ -25,33 +25,31 @@ export function ChatInput({ conversationId }: { conversationId: string }) {
   const formRef = useRef<HTMLFormElement>(null);
 
   return (
-    <form
-      ref={formRef}
-      action={async (formData) => {
-        await submitMessage(conversationId, formData);
-        formRef.current?.reset();
-      }}
-      className="flex w-full items-start gap-4"
-    >
-      <Textarea
-        name="message"
-        placeholder="Type your message here..."
-        className="flex-1 resize-none"
-        rows={1}
-        onKeyDown={(e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                formRef.current?.requestSubmit();
-            }
+    <div className="relative">
+      <form
+        ref={formRef}
+        action={async (formData) => {
+          await submitMessage(conversationId, formData);
+          formRef.current?.reset();
         }}
-      />
-       <div className="flex flex-col gap-2">
-        <SubmitButton />
-        <Button type="button" variant="outline" size="icon">
-            <Mic />
-            <span className="sr-only">Start Listening</span>
-        </Button>
-       </div>
-    </form>
+        className="flex w-full items-start gap-4"
+      >
+        <Textarea
+          name="message"
+          placeholder="Type your message..."
+          className="flex-1 resize-none border-0 shadow-none focus-visible:ring-0"
+          rows={1}
+          onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  formRef.current?.requestSubmit();
+              }
+          }}
+        />
+        <div className="flex items-center self-center">
+          <SubmitButton />
+        </div>
+      </form>
+    </div>
   );
 }
