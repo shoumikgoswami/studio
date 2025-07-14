@@ -1,124 +1,132 @@
 'use server';
 
-import { generateCoachingResponse } from '@/ai/flows/generate-coaching-response';
-import { suggestCoachingTopics, type SuggestedCoachingTopic } from '@/ai/flows/suggest-coaching-topics';
-import { getConversation, mockConversations, mockMessages } from './data';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import type { Message } from './types';
+import {
+  mockConversations,
+  mockMessages,
+  mockPersonas,
+  mockUser,
+} from './data';
+import { CoachPersonaSettings } from './types';
+import { v4 as uuidv4 } from 'uuid';
 
+export async function editMessage(
+  conversationId: string,
+  messageId: string,
+  newContent: string
+) {
+  // Simulate database update
+  await new Promise((resolve) => setTimeout(resolve, 500));
 
-export async function getSuggestedTopics(): Promise<SuggestedCoachingTopic[]> {
-  try {
-    const topics = await suggestCoachingTopics();
-    return topics;
-  } catch (error) {
-    console.error('Error suggesting topics:', error);
-    // Return a fallback list or an empty array in case of an error
-    return [
-        { title: 'Embracing Change', description: 'Learn how to view change as an opportunity for growth and development.' },
-        { title: 'Overcoming Resistance', description: 'Strategies to manage resistance to new situations.' },
-        { title: 'Growth Mindset', description: 'Cultivate a mindset that embraces challenges.' },
-    ];
+  const conversation = mockConversations.find((c) => c.id === conversationId);
+  if (!conversation) {
+    throw new Error('Conversation not found');
   }
-}
 
-export async function submitMessage(conversationId: string, formData: FormData) {
-  const userInput = formData.get('message') as string;
-  if (!userInput?.trim()) return { success: false, error: 'Message is empty.' };
-
-  // 1. Add user message to the conversation (mock)
-  if (!mockMessages[conversationId]) {
-    mockMessages[conversationId] = [];
+  const messageIndex = conversation.messages.findIndex((m) => m.id === messageId);
+  if (messageIndex === -1) {
+    throw new Error('Message not found');
   }
-  const userMessage: Message = {
-    id: `msg-${Date.now()}`,
-    role: 'user',
-    content: userInput,
+
+  // Update the message content
+  conversation.messages[messageIndex].content = newContent + ' (edited)';
+
+  // Discard subsequent messages for re-generation
+  conversation.messages.splice(messageIndex + 1);
+
+  // Simulate AI re-generation
+  const newAssistantMessage = {
+    id: `msg-${conversationId}-${Date.now()}`,
+    role: 'assistant' as const,
+    content: `Based on your updated message, let's re-evaluate. Tell me more about "${newContent}".`,
     createdAt: new Date().toISOString(),
-    avatarUrl: `https://placehold.co/40x40.png`,
+    avatarUrl: 'https://placehold.co/40x40.png',
   };
-  mockMessages[conversationId].push(userMessage);
-  
-  // Revalidate to show user message instantly
+
+  conversation.messages.push(newAssistantMessage);
+
+  // Also update the mockMessages record if it exists
+  if (mockMessages[conversationId]) {
+    mockMessages[conversationId] = conversation.messages;
+  }
+
+  conversation.updatedAt = new Date().toISOString();
+
   revalidatePath(`/coach/c/${conversationId}`);
 
-
-  // 2. Prepare data for AI
-  const conversation = await getConversation(conversationId);
-  const conversationHistory = (mockMessages[conversationId] || [])
-    .map(m => `${m.role}: ${m.content}`)
-    .join('\n');
-  
-  // 3. Call AI to generate a response
-  try {
-    const aiResponse = await generateCoachingResponse({
-      conversationHistory,
-      userInput,
-      aqData: "User is highly adaptable in changing environments but struggles with emotional resilience.",
-      goals: `Current goal: ${conversation?.relatedGoalId || 'Not specified'}`,
-      personaSettings: "Current persona: MOTI The Motivator (Friendly, encouraging, uses humor)",
-    });
-
-    // 4. Add AI response to the conversation (mock)
-    const assistantMessage: Message = {
-      id: `msg-${Date.now() + 1}`,
-      role: 'assistant',
-      content: aiResponse.coachingResponse,
-      createdAt: new Date().toISOString(),
-      avatarUrl: `https://placehold.co/40x40.png`,
-    };
-    mockMessages[conversationId].push(assistantMessage);
-
-    // 5. Revalidate path to show AI response
-    revalidatePath(`/coach/c/${conversationId}`);
-    return { success: true };
-
-  } catch (error) {
-    console.error('Error generating AI response:', error);
-    const errorMessage = 'Sorry, I encountered an error. Please try again.';
-    
-    const errorAssistantMessage: Message = {
-      id: `msg-${Date.now() + 1}`,
-      role: 'assistant',
-      content: errorMessage,
-      createdAt: new Date().toISOString(),
-      avatarUrl: `https://placehold.co/40x40.png`,
-    };
-    mockMessages[conversationId].push(errorAssistantMessage);
-
-    revalidatePath(`/coach/c/${conversationId}`);
-    return { success: false, error: 'Failed to get AI response.' };
-  }
+  return { success: true };
 }
 
 export async function createNewConversation(formData: FormData) {
-  const title = formData.get('title') as string;
-  const focusArea = formData.get('focusArea') as string | undefined;
-  const relatedGoalId = formData.get('relatedGoalId') as string | undefined;
-
-  const newConversationId = `conv-${Date.now()}`;
-  mockConversations.unshift({
-    id: newConversationId,
+  const newConversation = {
+    id: `conv-${Date.now()}`,
     userId: 'user-123',
-    title: title || 'New Conversation',
-    focusArea,
-    relatedGoalId,
+    title: formData.get('title') as string,
+    focusArea: (formData.get('focusArea') as string) || undefined,
+    relatedGoalId: (formData.get('relatedGoalId') as string) || undefined,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     messages: [],
-  });
+    isActive: true,
+  };
 
-  mockMessages[newConversationId] = [
-    {
-      id: `msg-${Date.now()}`,
-      role: 'assistant',
-      content: `Hello! Let's talk about ${title || 'your goals'}. What's on your mind?`,
-      createdAt: new Date().toISOString(),
-      avatarUrl: `https://placehold.co/40x40.png`,
-    },
-  ];
-
+  mockConversations.push(newConversation);
   revalidatePath('/coach');
-  redirect(`/coach/c/${newConversationId}`);
+  redirect(`/coach/c/${newConversation.id}`);
+}
+
+export async function saveCoachSettings(settings: CoachPersonaSettings) {
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  mockUser.coachSettings = settings;
+  revalidatePath('/coach/settings');
+  revalidatePath('/coach/c/*');
+  return { success: true };
+}
+
+export async function saveCustomPreset(
+  name: string,
+  settings: CoachPersonaSettings
+) {
+  await new Promise((resolve) => setTimeout(resolve, 500));
+
+  if (!mockUser.coachPresets) {
+    mockUser.coachPresets = [];
+  }
+
+  const newPreset = {
+    id: `custom-${uuidv4()}`,
+    name,
+    description: 'A custom configuration for my needs.', // Simplified for mock
+    strength: 'Balanced and thoughtful.', // Simplified for mock
+    bestFor: 'General coaching conversations.', // Simplified for mock
+    isSystemPreset: false,
+    settings,
+  };
+
+  mockUser.coachPresets.push(newPreset);
+  revalidatePath('/coach/settings');
+
+  return { success: true, newPreset };
+}
+
+export async function deleteCustomPreset(presetId: string) {
+  await new Promise((resolve) => setTimeout(resolve, 300));
+
+  if (mockUser.coachPresets) {
+    mockUser.coachPresets = mockUser.coachPresets.filter(
+      (p) => p.id !== presetId
+    );
+  }
+  
+  // If the active settings were from the deleted preset, reset to default.
+  const activePreset = mockPersonas.find(p => p.id === selectedPresetId);
+  if (mockUser.coachSettings === activePreset?.settings) {
+      mockUser.coachSettings = mockPersonas[0].settings;
+  }
+
+  revalidatePath('/coach/settings');
+  revalidatePath('/coach/c/*');
+  
+  return { success: true };
 }

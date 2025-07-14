@@ -3,6 +3,8 @@ export type User = {
   email?: string;
   name?: string;
   avatarUrl?: string;
+  coachSettings?: CoachPersonaSettings;
+  coachPresets?: CoachPersona[];
 };
 
 export type Goal = {
@@ -30,15 +32,25 @@ export type CoachingConversation = {
   createdAt: string;
   updatedAt: string;
   messages: Message[];
+  isActive: boolean;
 };
 
 export type CoachPersonaSettings = {
-  id: string;
-  userId: string;
-  name: string;
-  isSystemPreset: boolean;
   formality: number; // 1-10
   tone: number; // 1-10 (Direct to Encouraging)
   humor: number; // 1-10
   pace: number; // 1-10 (Reflective to Dynamic)
+  useMetaphors: boolean;
+  includeQuotes: boolean;
+  shareAnecdotes: boolean;
+};
+
+export type CoachPersona = {
+  id: string;
+  name: string;
+  description: string;
+  strength: string;
+  bestFor: string;
+  isSystemPreset: boolean;
+  settings: CoachPersonaSettings;
 };
