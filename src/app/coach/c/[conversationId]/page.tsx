@@ -69,7 +69,7 @@ export default async function ConversationPage({
 
 
   return (
-    <Card className="flex h-full flex-col border-0 shadow-none rounded-none">
+    <Card className="flex h-full flex-col border-0 shadow-none rounded-none bg-transparent">
       <CardHeader className="flex flex-row items-center justify-between border-b bg-card p-4">
         <div className="flex items-center gap-4">
           <h3 className="truncate text-lg font-semibold">

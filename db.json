@@ -1,6 +1,15 @@
 {
   "conversations": [
     {
+      "id": "conv-1752484897975",
+      "userId": "user-123",
+      "title": "Open Coaching Session",
+      "createdAt": "2025-07-14T09:21:37.975Z",
+      "updatedAt": "2025-07-14T09:21:37.976Z",
+      "messages": [],
+      "isActive": true
+    },
+    {
       "id": "conv-1752483526854",
       "userId": "user-123",
       "title": "Open Coaching Session",
