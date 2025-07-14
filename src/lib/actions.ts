@@ -110,7 +110,7 @@ export async function createNewConversation(formData: FormData) {
     isActive: true,
   };
 
-  mockConversations.push(newConversation);
+  mockConversations.unshift(newConversation);
   revalidatePath('/coach');
   redirect(`/coach/c/${newConversation.id}`);
 }
@@ -159,8 +159,8 @@ export async function deleteCustomPreset(presetId: string) {
     );
 
     // If the active settings were from the deleted preset, reset to default.
-    if (deletedPreset && JSON.stringify(mockUser.coachSettings) === JSON.stringify(deletedPreset.settings)) {
-        mockUser.coachSettings = mockPersonas[0].settings;
+    if (deletedPreset && mockUser.coachSettings && JSON.stringify(mockUser.coachSettings) === JSON.stringify(deletedPreset.settings)) {
+        mockUser.coachSettings = mockPersonas.find(p => p.isSystemPreset)!.settings;
     }
   }
 
