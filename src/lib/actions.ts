@@ -1,3 +1,4 @@
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -98,10 +99,11 @@ export async function editMessage(
 }
 
 export async function createNewConversation(formData: FormData) {
+  const title = (formData.get('title') as string) || 'New Conversation';
   const newConversation = {
     id: `conv-${Date.now()}`,
     userId: 'user-123',
-    title: formData.get('title') as string,
+    title: title,
     focusArea: (formData.get('focusArea') as string) || undefined,
     relatedGoalId: (formData.get('relatedGoalId') as string) || undefined,
     createdAt: new Date().toISOString(),
