@@ -11,6 +11,45 @@ import {
 import { CoachPersonaSettings } from './types';
 import { v4 as uuidv4 } from 'uuid';
 
+export async function submitMessage(conversationId: string, formData: FormData) {
+  // Simulate database update
+  await new Promise((resolve) => setTimeout(resolve, 500));
+  const conversation = mockConversations.find((c) => c.id === conversationId);
+  if (!conversation) {
+    throw new Error('Conversation not found');
+  }
+
+  const userMessage = {
+    id: `msg-${conversationId}-${Date.now()}`,
+    role: 'user' as const,
+    content: formData.get('message') as string,
+    createdAt: new Date().toISOString(),
+  };
+
+  conversation.messages.push(userMessage);
+
+  // Simulate AI response generation
+  const assistantResponse = {
+    id: `msg-${conversationId}-${Date.now() + 1}`,
+    role: 'assistant' as const,
+    content: `Thinking about your message: "${formData.get('message')}"...`,
+    createdAt: new Date().toISOString(),
+    avatarUrl: 'https://placehold.co/40x40.png',
+  };
+  conversation.messages.push(assistantResponse);
+
+  // Also update the mockMessages record if it exists
+  if (mockMessages[conversationId]) {
+    mockMessages[conversationId] = conversation.messages;
+  }
+
+  conversation.updatedAt = new Date().toISOString();
+
+  revalidatePath(`/coach/c/${conversationId}`);
+  return { success: true };
+}
+
+
 export async function editMessage(
   conversationId: string,
   messageId: string,
@@ -66,7 +105,7 @@ export async function createNewConversation(formData: FormData) {
     focusArea: (formData.get('focusArea') as string) || undefined,
     relatedGoalId: (formData.get('relatedGoalId') as string) || undefined,
     createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    updatedAt: new date().toISOString(),
     messages: [],
     isActive: true,
   };
@@ -114,15 +153,15 @@ export async function deleteCustomPreset(presetId: string) {
   await new Promise((resolve) => setTimeout(resolve, 300));
 
   if (mockUser.coachPresets) {
+    const deletedPreset = mockUser.coachPresets.find(p => p.id === presetId);
     mockUser.coachPresets = mockUser.coachPresets.filter(
       (p) => p.id !== presetId
     );
-  }
-  
-  // If the active settings were from the deleted preset, reset to default.
-  const activePreset = mockPersonas.find(p => p.id === selectedPresetId);
-  if (mockUser.coachSettings === activePreset?.settings) {
-      mockUser.coachSettings = mockPersonas[0].settings;
+
+    // If the active settings were from the deleted preset, reset to default.
+    if (deletedPreset && JSON.stringify(mockUser.coachSettings) === JSON.stringify(deletedPreset.settings)) {
+        mockUser.coachSettings = mockPersonas[0].settings;
+    }
   }
 
   revalidatePath('/coach/settings');
