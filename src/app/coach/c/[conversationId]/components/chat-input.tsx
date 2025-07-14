@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -40,7 +41,7 @@ export function ChatInput({ conversationId }: { conversationId: string }) {
   };
 
   return (
-    <div className="relative">
+    <div className="relative w-full">
       <form
         ref={formRef}
         action={async (formData) => {
