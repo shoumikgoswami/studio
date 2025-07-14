@@ -105,7 +105,7 @@ export async function createNewConversation(formData: FormData) {
     focusArea: (formData.get('focusArea') as string) || undefined,
     relatedGoalId: (formData.get('relatedGoalId') as string) || undefined,
     createdAt: new Date().toISOString(),
-    updatedAt: new date().toISOString(),
+    updatedAt: new Date().toISOString(),
     messages: [],
     isActive: true,
   };
