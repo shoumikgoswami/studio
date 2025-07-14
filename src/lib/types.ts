@@ -54,3 +54,8 @@ export type CoachPersona = {
   isSystemPreset: boolean;
   settings: CoachPersonaSettings;
 };
+
+export type SuggestedCoachingTopic = {
+    title: string;
+    description: string;
+};

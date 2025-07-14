@@ -6,6 +6,7 @@ import type {
   Goal,
   CoachPersona,
   User,
+  SuggestedCoachingTopic,
 } from './types';
 import { suggestCoachingTopics as suggestCoachingTopicsFlow } from '@/ai/flows/suggest-coaching-topics';
 import { getDb } from './db';
@@ -45,7 +46,7 @@ export async function getUser(): Promise<User> {
   return db.user;
 }
 
-export async function getSuggestedTopics(): Promise<string[]> {
+export async function getSuggestedTopics(): Promise<SuggestedCoachingTopic[]> {
   const topics = await suggestCoachingTopicsFlow();
-  return topics.map((topic) => topic.title);
+  return topics;
 }

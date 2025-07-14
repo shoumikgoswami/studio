@@ -17,13 +17,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getGoals } from "@/lib/data";
+import { getGoals, getSuggestedTopics } from "@/lib/data";
 import { TopicStarter } from "./components/topic-starter";
 import { createNewConversation } from "@/lib/actions";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export default async function NewConversationPage() {
   const goals = await getGoals();
+  const topics = await getSuggestedTopics();
+  // Shuffle and limit to 6 as per PRD
+  const initialTopics = topics.sort(() => 0.5 - Math.random()).slice(0, 6);
+
 
   return (
     <div className="flex h-full flex-col">
@@ -50,7 +54,7 @@ export default async function NewConversationPage() {
                 <TabsTrigger value="setup">Set it Up Manually</TabsTrigger>
               </TabsList>
               <TabsContent value="inspire" className="pt-4">
-                <TopicStarter />
+                <TopicStarter initialTopics={initialTopics}/>
               </TabsContent>
               <TabsContent value="setup" className="pt-4">
                 <form action={createNewConversation} className="space-y-4">

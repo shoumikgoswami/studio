@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation';
 import { v4 as uuidv4 } from 'uuid';
 import type { CoachPersonaSettings, CoachingConversation } from './types';
 import { getDb, updateDb } from './db';
+import { getSuggestedTopics } from './data';
 
 export async function submitMessage(conversationId: string, formData: FormData) {
   // Simulate database update
@@ -183,4 +184,8 @@ export async function deleteCustomPreset(presetId: string) {
   revalidatePath('/coach/c/*');
 
   return { success: true };
+}
+
+export async function getSuggestedTopicsAction() {
+    return getSuggestedTopics();
 }

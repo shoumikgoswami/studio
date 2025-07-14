@@ -1,56 +1,44 @@
 'use client';
 
-import { getSuggestedTopics } from '@/lib/data';
-import { useEffect, useState, useTransition } from 'react';
+import { useState, useTransition } from 'react';
 import {
   Card,
-  CardDescription,
   CardTitle,
   CardHeader,
 } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { createNewConversation } from '@/lib/actions';
+import { createNewConversation, getSuggestedTopicsAction } from '@/lib/actions';
 import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import type { SuggestedCoachingTopic } from '@/lib/types';
 
-export function TopicStarter() {
+
+export function TopicStarter({ initialTopics }: { initialTopics: SuggestedCoachingTopic[] }) {
   const { toast } = useToast();
-  const [topics, setTopics] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [topics, setTopics] = useState(initialTopics);
   const [isRefreshing, startRefreshTransition] = useTransition();
 
   const fetchTopics = async () => {
-    setLoading(true);
-    try {
-      const suggestedTopics = await getSuggestedTopics();
-      // Shuffle and limit to 6 as per PRD
-      const shuffled = suggestedTopics.sort(() => 0.5 - Math.random());
-      setTopics(shuffled.slice(0, 6));
-    } catch (error) {
-      toast({
-        title: 'Error fetching topics',
-        description: 'Could not load suggestions. Please try again.',
-        variant: 'destructive',
-      });
-    } finally {
-      setLoading(false);
-    }
+    startRefreshTransition(async () => {
+      try {
+        const suggestedTopics = await getSuggestedTopicsAction();
+        // Shuffle and limit to 6 as per PRD
+        const shuffled = suggestedTopics.sort(() => 0.5 - Math.random());
+        setTopics(shuffled.slice(0, 6));
+        toast({ title: 'New ideas refreshed!' });
+      } catch (error) {
+        toast({
+          title: 'Error fetching topics',
+          description: 'Could not load suggestions. Please try again.',
+          variant: 'destructive',
+        });
+      }
+    });
   };
-
-  useEffect(() => {
-    fetchTopics();
-  }, []);
   
-  const handleRefresh = () => {
-      startRefreshTransition(() => {
-          fetchTopics();
-          toast({ title: 'New ideas refreshed!' });
-      });
-  };
-
-  if (loading && !isRefreshing) {
+  if (!topics) {
     return (
       <div className="space-y-4">
         <div className="flex justify-end">
@@ -71,7 +59,7 @@ export function TopicStarter() {
   return (
     <div className="space-y-4">
       <div className="flex justify-end">
-        <Button onClick={handleRefresh} disabled={isRefreshing} variant="outline">
+        <Button onClick={fetchTopics} disabled={isRefreshing} variant="outline">
           <RefreshCw
             className={cn('mr-2 h-4 w-4', isRefreshing && 'animate-spin')}
           />
@@ -81,8 +69,8 @@ export function TopicStarter() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {topics.map((topic, index) => (
           <form key={index} action={createNewConversation}>
-             <input type="hidden" name="title" value={topic} />
-             <input type="hidden" name="focusArea" value={topic} />
+             <input type="hidden" name="title" value={topic.title} />
+             <input type="hidden" name="focusArea" value={topic.title} />
             <button
               type="submit"
               className="h-full w-full text-left"
@@ -91,7 +79,7 @@ export function TopicStarter() {
               <Card className="h-full p-4 transition-colors hover:bg-accent hover:text-accent-foreground">
                 <CardHeader className="p-0">
                   <CardTitle className="text-base font-semibold">
-                    {topic}
+                    {topic.title}
                   </CardTitle>
                 </CardHeader>
               </Card>

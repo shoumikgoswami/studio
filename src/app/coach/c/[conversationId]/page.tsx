@@ -20,7 +20,6 @@ import { Badge } from '@/components/ui/badge';
 import { ChatMessages } from './components/chat-messages';
 import { ChatInput } from './components/chat-input';
 import { SidebarTrigger } from '@/components/ui/sidebar';
-import { mockPersonas } from '@/lib/data';
 import type { CoachPersona } from '@/lib/types';
 
 function getActivePersona(
@@ -50,7 +49,7 @@ export default async function ConversationPage({
     notFound();
   }
 
-  const activePersona = getActivePersona(user, personas) || mockPersonas[0];
+  const activePersona = getActivePersona(user, personas) || personas[0];
 
   return (
     <div className="flex h-full max-h-screen flex-col">
