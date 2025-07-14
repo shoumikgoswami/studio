@@ -178,6 +178,23 @@
           "includeQuotes": false,
           "shareAnecdotes": false
         }
+      },
+      {
+        "id": "custom-2723d2d5-56de-4dc1-8d0d-d4c41da8878a",
+        "name": "test coach",
+        "description": "A custom configuration for my needs.",
+        "strength": "Balanced and thoughtful.",
+        "bestFor": "General coaching conversations.",
+        "isSystemPreset": false,
+        "settings": {
+          "formality": 4,
+          "tone": 9,
+          "humor": 7,
+          "pace": 8,
+          "useMetaphors": true,
+          "includeQuotes": true,
+          "shareAnecdotes": true
+        }
       }
     ]
   },
