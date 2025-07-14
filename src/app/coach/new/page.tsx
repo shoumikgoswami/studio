@@ -26,14 +26,14 @@ export default async function NewConversationPage() {
 
   return (
     <div className="flex h-full flex-col">
-       <header className="flex h-14 items-center gap-4 border-b bg-card px-4 lg:h-[60px] lg:px-6">
+       <header className="flex h-14 shrink-0 items-center gap-4 border-b bg-card px-4 lg:h-[60px] lg:px-6">
           <SidebarTrigger className="md:hidden" />
           <h1 className="text-lg font-semibold md:text-xl font-headline">
             Start New Coaching Session
           </h1>
         </header>
       <main className="flex flex-1 items-center justify-center p-4 sm:p-6">
-        <Card className="w-full max-w-2xl border-0 shadow-sm">
+        <Card className="w-full max-w-2xl border-0 shadow-none">
           <CardHeader>
             <form action={createNewConversation}>
                 <input type="hidden" name="title" value="Open Coaching Session" />

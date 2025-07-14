@@ -2,7 +2,6 @@
 import { getCoachPersonas, getConversation, getUser } from '@/lib/data';
 import { notFound } from 'next/navigation';
 import {
-  Card,
   CardContent,
   CardFooter,
   CardHeader,
@@ -22,14 +21,14 @@ import { ChatMessages } from './components/chat-messages';
 import { ChatInput } from './components/chat-input';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { mockPersonas } from '@/lib/data';
-import { CoachPersona } from '@/lib/types';
+import type { CoachPersona } from '@/lib/types';
 
 function getActivePersona(
   user: any,
   personas: CoachPersona[]
 ): CoachPersona | undefined {
   if (!user.coachSettings) return personas.find((p) => p.isSystemPreset);
-  const custom = user.coachPresets.find(
+  const custom = (user.coachPresets || []).find(
     (p: any) => JSON.stringify(p.settings) === JSON.stringify(user.coachSettings)
   );
   if (custom) return custom;
@@ -58,9 +57,9 @@ export default async function ConversationPage({
       <CardHeader className="flex flex-row items-center justify-between border-b bg-card p-2 px-4">
         <div className="flex items-center gap-2">
           <SidebarTrigger className="md:hidden" />
-          <h1 className="truncate font-headline text-lg font-semibold">
+          <h3 className="truncate font-bold text-lg">
             {conversation.title}
-          </h1>
+          </h3>
         </div>
         <div className="flex items-center gap-2">
           <DropdownMenu>
@@ -76,14 +75,18 @@ export default async function ConversationPage({
               {personas.map((p) => (
                 <DropdownMenuItem key={p.id}>{p.name}</DropdownMenuItem>
               ))}
-              {user.coachPresets && user.coachPresets.length > 0 && (
+              {(user.coachPresets || []).length > 0 && (
                 <>
                   <DropdownMenuSeparator />
-                  {user.coachPresets.map((p) => (
+                  {user.coachPresets.map((p: CoachPersona) => (
                     <DropdownMenuItem key={p.id}>{p.name}</DropdownMenuItem>
                   ))}
                 </>
               )}
+               <DropdownMenuSeparator />
+               <DropdownMenuItem asChild>
+                 <Link href="/coach/settings">Customize Coach</Link>
+               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -101,13 +104,6 @@ export default async function ConversationPage({
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-
-          <Button variant="outline" size="icon" asChild>
-            <Link href="/coach/settings">
-              <Settings className="h-4 w-4" />
-              <span className="sr-only">Coach Settings</span>
-            </Link>
-          </Button>
         </div>
       </CardHeader>
       <CardContent className="flex-1 overflow-hidden p-0">

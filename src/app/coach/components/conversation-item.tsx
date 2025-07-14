@@ -16,7 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
-import { formatDistanceToNow } from "date-fns";
+import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { useState, useEffect } from "react";
 
@@ -27,12 +27,11 @@ type ConversationItemProps = {
 export function ConversationItem({ conversation }: ConversationItemProps) {
   const pathname = usePathname();
   const isActive = pathname === `/coach/c/${conversation.id}`;
-  const [timeAgo, setTimeAgo] = useState('');
+  const [lastUpdated, setLastUpdated] = useState('');
 
   useEffect(() => {
-    setTimeAgo(formatDistanceToNow(new Date(conversation.updatedAt), {
-        addSuffix: true,
-    }));
+    // This will only run on the client, preventing hydration mismatch
+    setLastUpdated(format(new Date(conversation.updatedAt), "MMM d"));
   }, [conversation.updatedAt]);
 
 
@@ -44,7 +43,7 @@ export function ConversationItem({ conversation }: ConversationItemProps) {
             <span className="truncate font-medium">{conversation.title}</span>
             <div className="flex w-full items-center justify-between text-xs text-muted-foreground">
               <span className="truncate">
-                {timeAgo}
+                {lastUpdated}
               </span>
               {conversation.focusArea && (
                 <Badge variant="outline" className="hidden group-hover/menu-item:block">
