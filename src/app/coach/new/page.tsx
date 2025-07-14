@@ -30,24 +30,30 @@ export default async function NewConversationPage() {
 
 
   return (
-    <div className="flex h-full flex-col">
-       <header className="flex h-14 shrink-0 items-center gap-4 border-b bg-card px-4 lg:h-[60px] lg:px-6">
-          <SidebarTrigger className="md:hidden" />
-          <h1 className="text-lg font-semibold md:text-xl font-headline">
-            Start New Coaching Session
-          </h1>
-        </header>
-      <main className="flex flex-1 items-center justify-center p-4 sm:p-6">
-        <Card className="w-full max-w-2xl border-0 shadow-none">
+    <div className="flex h-full flex-col items-center justify-center">
+      <Card className="w-full max-w-2xl">
           <CardHeader>
-            <form action={createNewConversation}>
+            <CardTitle className="text-center text-2xl">Start New Coaching Session</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form action={createNewConversation} className="mb-6">
                 <input type="hidden" name="title" value="Open Coaching Session" />
                 <Button type="submit" size="lg" className="w-full">
                     Just Go: Start an Open Coaching Session
                 </Button>
             </form>
-          </CardHeader>
-          <CardContent>
+
+            <div className="relative mb-6">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-card px-2 text-muted-foreground">
+                  Or choose a setup option
+                </span>
+              </div>
+            </div>
+
             <Tabs defaultValue="inspire">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="inspire">Inspire Me</TabsTrigger>
@@ -100,7 +106,6 @@ export default async function NewConversationPage() {
             </Tabs>
           </CardContent>
         </Card>
-      </main>
     </div>
   );
 }

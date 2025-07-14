@@ -142,7 +142,7 @@ export function PersonaSettingsForm({
 
   return (
     <>
-      <Card className="border-0 shadow-sm h-full flex flex-col">
+      <Card className="h-full flex flex-col">
         <CardHeader>
           <CardTitle className="font-headline">Customize Your Coach</CardTitle>
           <CardDescription>
@@ -242,7 +242,7 @@ export function PersonaSettingsForm({
             </div>
           </div>
         </CardContent>
-        <CardFooter className="flex justify-between items-center mt-auto">
+        <CardFooter className="flex justify-between items-center mt-auto bg-card border-t pt-6">
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button variant="outline" disabled={isPending}>

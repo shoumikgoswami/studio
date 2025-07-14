@@ -2,6 +2,7 @@
 import { getCoachPersonas, getConversation, getUser } from '@/lib/data';
 import { notFound } from 'next/navigation';
 import {
+  Card,
   CardContent,
   CardFooter,
   CardHeader,
@@ -32,8 +33,8 @@ function getActivePersona(
   );
   if (custom) return custom;
   return personas.find(
-    (p) => JSON.stringify(p.settings) === JSON.stringify(user.coachSettings)
-  );
+    (p) => p.settings && user.coachSettings && JSON.stringify(p.settings) === JSON.stringify(user.coachSettings)
+  ) || personas[0];
 }
 
 export default async function ConversationPage({
@@ -49,24 +50,21 @@ export default async function ConversationPage({
     notFound();
   }
 
-  const activePersona = getActivePersona(user, personas) || personas[0];
+  const activePersona = getActivePersona(user, personas);
 
   return (
-    <div className="flex h-full max-h-screen flex-col">
-      <CardHeader className="flex flex-row items-center justify-between border-b bg-card p-2 px-4">
+    <Card className="flex h-full flex-col border-0 shadow-none">
+      <CardHeader className="flex flex-row items-center justify-between border-b bg-card p-4">
         <div className="flex items-center gap-2">
           <SidebarTrigger className="md:hidden" />
-          <h3 className="truncate font-bold text-lg">
+          <h3 className="truncate text-lg font-semibold">
             {conversation.title}
           </h3>
         </div>
         <div className="flex items-center gap-2">
-          <DropdownMenu>
+          {activePersona && <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="max-w-[200px] truncate">
-                <Badge className="mr-2 bg-primary/20 text-primary">
-                  {activePersona.name.split(' ')[0].substring(0, 4).toUpperCase()}
-                </Badge>
                 <span className="truncate">{activePersona.name}</span>
               </Button>
             </DropdownMenuTrigger>
@@ -87,7 +85,7 @@ export default async function ConversationPage({
                  <Link href="/coach/settings">Customize Coach</Link>
                </DropdownMenuItem>
             </DropdownMenuContent>
-          </DropdownMenu>
+          </DropdownMenu>}
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -111,6 +109,6 @@ export default async function ConversationPage({
       <CardFooter className="border-t p-4">
         <ChatInput conversationId={conversation.id} />
       </CardFooter>
-    </div>
+    </Card>
   );
 }
