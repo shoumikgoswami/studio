@@ -1,21 +1,19 @@
-
+// src/lib/actions.ts
 'use server';
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import {
-  mockConversations,
-  mockMessages,
-  mockPersonas,
-  mockUser,
-} from './data';
-import { CoachPersonaSettings } from './types';
 import { v4 as uuidv4 } from 'uuid';
+import type { CoachPersonaSettings, CoachingConversation } from './types';
+import { getDb, updateDb } from './db';
 
 export async function submitMessage(conversationId: string, formData: FormData) {
   // Simulate database update
   await new Promise((resolve) => setTimeout(resolve, 500));
-  const conversation = mockConversations.find((c) => c.id === conversationId);
+  const db = await getDb();
+  const conversation = db.conversations.find(
+    (c: CoachingConversation) => c.id === conversationId
+  );
   if (!conversation) {
     throw new Error('Conversation not found');
   }
@@ -39,17 +37,13 @@ export async function submitMessage(conversationId: string, formData: FormData) 
   };
   conversation.messages.push(assistantResponse);
 
-  // Also update the mockMessages record if it exists
-  if (mockMessages[conversationId]) {
-    mockMessages[conversationId] = conversation.messages;
-  }
-
   conversation.updatedAt = new Date().toISOString();
+
+  await updateDb({ conversations: db.conversations });
 
   revalidatePath(`/coach/c/${conversationId}`);
   return { success: true };
 }
-
 
 export async function editMessage(
   conversationId: string,
@@ -59,12 +53,17 @@ export async function editMessage(
   // Simulate database update
   await new Promise((resolve) => setTimeout(resolve, 500));
 
-  const conversation = mockConversations.find((c) => c.id === conversationId);
+  const db = await getDb();
+  const conversation = db.conversations.find(
+    (c: CoachingConversation) => c.id === conversationId
+  );
   if (!conversation) {
     throw new Error('Conversation not found');
   }
 
-  const messageIndex = conversation.messages.findIndex((m) => m.id === messageId);
+  const messageIndex = conversation.messages.findIndex(
+    (m: any) => m.id === messageId
+  );
   if (messageIndex === -1) {
     throw new Error('Message not found');
   }
@@ -85,13 +84,9 @@ export async function editMessage(
   };
 
   conversation.messages.push(newAssistantMessage);
-
-  // Also update the mockMessages record if it exists
-  if (mockMessages[conversationId]) {
-    mockMessages[conversationId] = conversation.messages;
-  }
-
   conversation.updatedAt = new Date().toISOString();
+
+  await updateDb({ conversations: db.conversations });
 
   revalidatePath(`/coach/c/${conversationId}`);
 
@@ -100,7 +95,8 @@ export async function editMessage(
 
 export async function createNewConversation(formData: FormData) {
   const title = (formData.get('title') as string) || 'New Conversation';
-  const newConversation = {
+
+  const newConversation: CoachingConversation = {
     id: `conv-${Date.now()}`,
     userId: 'user-123',
     title: title,
@@ -108,20 +104,24 @@ export async function createNewConversation(formData: FormData) {
     relatedGoalId: (formData.get('relatedGoalId') as string) || undefined,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    messages: [], // Initialize messages directly on the object
+    messages: [],
     isActive: true,
   };
 
-  mockConversations.unshift(newConversation);
-  // We no longer need to manage mockMessages separately for new conversations.
-  // mockMessages[newConversation.id] = []; 
+  const db = await getDb();
+  db.conversations.unshift(newConversation);
+  await updateDb({ conversations: db.conversations });
+
   revalidatePath('/coach');
   redirect(`/coach/c/${newConversation.id}`);
 }
 
 export async function saveCoachSettings(settings: CoachPersonaSettings) {
   await new Promise((resolve) => setTimeout(resolve, 500));
-  mockUser.coachSettings = settings;
+  const db = await getDb();
+  db.user.coachSettings = settings;
+  await updateDb({ user: db.user });
+
   revalidatePath('/coach/settings');
   revalidatePath('/coach/c/*');
   return { success: true };
@@ -133,8 +133,9 @@ export async function saveCustomPreset(
 ) {
   await new Promise((resolve) => setTimeout(resolve, 500));
 
-  if (!mockUser.coachPresets) {
-    mockUser.coachPresets = [];
+  const db = await getDb();
+  if (!db.user.coachPresets) {
+    db.user.coachPresets = [];
   }
 
   const newPreset = {
@@ -147,7 +148,9 @@ export async function saveCustomPreset(
     settings,
   };
 
-  mockUser.coachPresets.push(newPreset);
+  db.user.coachPresets.push(newPreset);
+  await updateDb({ user: db.user });
+
   revalidatePath('/coach/settings');
 
   return { success: true, newPreset };
@@ -156,20 +159,28 @@ export async function saveCustomPreset(
 export async function deleteCustomPreset(presetId: string) {
   await new Promise((resolve) => setTimeout(resolve, 300));
 
-  if (mockUser.coachPresets) {
-    const deletedPreset = mockUser.coachPresets.find(p => p.id === presetId);
-    mockUser.coachPresets = mockUser.coachPresets.filter(
-      (p) => p.id !== presetId
-    );
+  const db = await getDb();
+  const { user, personas } = db;
+
+  if (user.coachPresets) {
+    const deletedPreset = user.coachPresets.find((p: any) => p.id === presetId);
+    user.coachPresets = user.coachPresets.filter((p: any) => p.id !== presetId);
 
     // If the active settings were from the deleted preset, reset to default.
-    if (deletedPreset && mockUser.coachSettings && JSON.stringify(mockUser.coachSettings) === JSON.stringify(deletedPreset.settings)) {
-        mockUser.coachSettings = mockPersonas.find(p => p.isSystemPreset)!.settings;
+    if (
+      deletedPreset &&
+      user.coachSettings &&
+      JSON.stringify(user.coachSettings) ===
+        JSON.stringify(deletedPreset.settings)
+    ) {
+      user.coachSettings = personas.find((p: any) => p.isSystemPreset)!.settings;
     }
   }
 
+  await updateDb({ user: user });
+
   revalidatePath('/coach/settings');
   revalidatePath('/coach/c/*');
-  
+
   return { success: true };
 }
