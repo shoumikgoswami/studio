@@ -50,13 +50,6 @@ export function TopicStarter() {
       });
   };
 
-  const handleTopicSelect = (topic: string) => {
-    const formData = new FormData();
-    formData.append('title', topic);
-    formData.append('focusArea', topic);
-    createNewConversation(formData);
-  };
-
   if (loading && !isRefreshing) {
     return (
       <div className="space-y-4">
@@ -87,7 +80,9 @@ export function TopicStarter() {
       </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         {topics.map((topic, index) => (
-          <form key={index} action={() => handleTopicSelect(topic)}>
+          <form key={index} action={createNewConversation}>
+             <input type="hidden" name="title" value={topic} />
+             <input type="hidden" name="focusArea" value={topic} />
             <button
               type="submit"
               className="h-full w-full text-left"
