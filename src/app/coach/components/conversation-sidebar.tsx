@@ -22,20 +22,7 @@ export async function ConversationSidebar() {
 
   const menuItems = [
       { href: "/coach", label: "Dashboard", icon: <Home /> },
-      { href: "#", label: "My Report", icon: <BarChart3 /> },
-      { href: "#", label: "My Goals", icon: <Target /> },
-      { href: "/coach/new", label: "Difficult Conversations", icon: <MessageSquare /> },
       { href: "/coach/new", label: "Personalized Coach", icon: <MessageSquare />, active: true},
-      { href: "#", label: "Development Plan", icon: <Target /> },
-      { href: "#", label: "Project Booster", icon: <FileText /> },
-      { href: "#", label: "Enhance LinkedIn", icon: <Linkedin /> },
-      { href: "#", label: "Micro Tips Setup", icon: <Bell /> },
-      { href: "#", label: "Billing", icon: <CreditCard />, comingSoon: true },
-  ]
-
-  const bottomMenuItems = [
-      { href: "/coach/settings", label: "Customize Menu", icon: <Settings /> },
-      { href: "/login", label: "Log out", icon: <LogOut /> },
   ]
 
   return (
@@ -59,18 +46,6 @@ export async function ConversationSidebar() {
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter className="border-t border-sidebar-border p-2">
-        <SidebarMenu>
-             {bottomMenuItems.map(item => (
-                <SidebarMenuItem key={item.label}>
-                    <SidebarMenuButton asChild>
-                        <Link href={item.href}>
-                            {item.icon}
-                            <span>{item.label}</span>
-                        </Link>
-                    </SidebarMenuButton>
-                </SidebarMenuItem>
-            ))}
-        </SidebarMenu>
         <div className="p-4 border-t border-sidebar-border mt-2">
             <Icons.poweredBy />
         </div>
