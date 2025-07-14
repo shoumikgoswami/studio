@@ -108,12 +108,13 @@ export async function createNewConversation(formData: FormData) {
     relatedGoalId: (formData.get('relatedGoalId') as string) || undefined,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    messages: [],
+    messages: [], // Initialize messages directly on the object
     isActive: true,
   };
 
   mockConversations.unshift(newConversation);
-  mockMessages[newConversation.id] = [];
+  // We no longer need to manage mockMessages separately for new conversations.
+  // mockMessages[newConversation.id] = []; 
   revalidatePath('/coach');
   redirect(`/coach/c/${newConversation.id}`);
 }

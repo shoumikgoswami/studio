@@ -221,12 +221,14 @@ export async function getConversation(
 ): Promise<CoachingConversation | undefined> {
   await new Promise((resolve) => setTimeout(resolve, 300));
   const conversation = mockConversations.find((c) => c.id === id);
+  
   if (conversation) {
-    // For existing conversations, their messages are in the main `mockMessages` object.
+    // For existing conversations, their messages might be in the separate `mockMessages` object.
     // For newly created ones, the messages array is on the conversation object itself.
     const messages = mockMessages[id] || conversation.messages || [];
     return { ...conversation, messages };
   }
+  
   return undefined;
 }
 
