@@ -111,6 +111,7 @@ export async function createNewConversation(formData: FormData) {
   };
 
   mockConversations.unshift(newConversation);
+  mockMessages[newConversation.id] = [];
   revalidatePath('/coach');
   redirect(`/coach/c/${newConversation.id}`);
 }
